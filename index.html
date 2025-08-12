@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pagamento PIX — Congresso de Missões</title>
+  <style>
+    :root{--bg:#ffffff;--card:#ffffff;--muted:#6b7280;--text:#0b1320;--accent:#1d4ed8;--ok:#15803d}
+    html,body{height:100%}
+    body{margin:0;background:#ffffff;color:var(--text);font:16px system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;}
+    .wrap{max-width:900px;margin:0 auto;padding:28px}
+    .card{background:var(--card);border:1px solid #e5e7eb;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.06)}
+    .pad{padding:22px}
+    h1{font-size:clamp(22px,4vw,30px);margin:0 0 12px}
+    h2{font-size:18px;margin:0 0 10px}
+    p{color:var(--muted);line-height:1.6;margin:0 0 14px}
+    .grid{display:grid;gap:18px;grid-template-columns:1fr;}
+    @media(min-width:860px){.grid{grid-template-columns:1fr}}
+    .qrbox{display:flex;align-items:center;justify-content:center;background:#f8fafc;border:1px dashed #e5e7eb;border-radius:12px;min-height:320px}
+    #qrcode img{width:100%;height:auto;max-width:320px}
+    .row{display:flex;gap:10px;align-items:center}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+    .copy{border:1px solid #e5e7eb;background:#f8fafc;color:var(--text);padding:10px 14px;border-radius:10px;cursor:pointer}
+    .copy:hover{background:#eef2f7}
+    input,textarea{width:100%;background:#f9fafb;color:var(--text);border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px}
+    textarea{min-height:120px;resize:vertical}
+    .badge{display:inline-block;background:#eef2ff;border:1px solid #dbe3ff;color:#1d4ed8;padding:6px 10px;border-radius:999px;font-size:12px}
+    .muted{color:#6b7280}
+    .ok{color:var(--ok)}
+    .foot{opacity:.8;font-size:13px;margin-top:8px}
+    .pill{display:inline-flex;gap:8px;align-items:center;background:#f5f7fb;border:1px solid #e5e7eb;padding:6px 10px;border-radius:999px}
+    .small{font-size:14px}
+    .titleline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+    .whatsapp-btn{background:#25D366;border:1px solid #128C7E;color:white;padding:12px 20px;border-radius:10px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;font-weight:500}
+    .whatsapp-btn:hover{background:#128C7E}
+    .btn-blue{background:#1d4ed8;border:1px solid #1e40af;color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer}
+    .btn-blue:hover{background:#1e40af}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card pad">
+      <div class="titleline">
+        <h1>Pagamento PIX — Congresso de Missões</h1>
+      </div>
+      <p id="hello" class="muted" style="margin-bottom:18px">Olá!</p>
+
+      <div class="grid" style="margin-top:8px">
+        <!-- QR PRIMEIRO -->
+        <section class="qrbox pad" aria-label="QR Code do PIX">
+          <div id="qrcode"></div>
+        </section>
+        <div class="row" style="gap:12px;margin:10px 0">
+          <div style="flex:1">
+            <label class="small muted">Descrição</label>
+            <div class="mono" id="descShow">Congresso de Missões</div>
+          </div>
+          <div style="width:180px">
+            <label class="small muted">Valor</label>
+            <div class="mono" style="background:#fff;padding:10px 12px;border-radius:10px;border:1px solid #e5e7eb">R$ 30,00</div>
+          </div>
+        </div>
+
+        <!-- DADOS -->
+        <section class="pad" style="background:#fafafa;border:1px solid #e5e7eb;border-radius:12px">
+          <h2 style="margin-top:0">Dados do pagamento</h2>
+
+          <div style="margin:8px 0 14px">
+            <strong>Como pagar</strong>
+            <ol class="small" style="margin:8px 0 0 18px;color:#374151">
+              <li>Escaneie o QR Code acima.</li>
+              <li>Ou use o PIX copia e cola clicando em <em>Copiar código PIX</em> abaixo.</li>
+              <li>Ou pague pela <em>chave PIX</em> exibida, clicando em <em>Copiar chave</em>.</li>
+            </ol>
+          </div>
+
+          <div class="row" style="margin:8px 0 10px">
+            <span class="pill"><span>Chave PIX</span> <strong class="mono" id="pixKeyShow"></strong></span>
+            <button id="btnCopyKey" class="btn-blue" style="margin-left:auto">Copiar chave</button>
+          </div>
+
+        
+
+          <div class="row" style="margin:10px 0">
+            <button class="btn-blue" id="btnCopy" title="Copiar código PIX copia e cola">Copiar código PIX Copia e Cola</button>
+          </div>
+
+          <label class="small muted">PIX copia e cola</label>
+          <textarea id="payload" class="mono" readonly></textarea>
+          <div class="foot">Dica: cole esse código no seu app do banco (opção "Pix copia e cola").</div>
+
+          <div class="foot" style="margin-top:12px;color:#374151">
+            Após o pagamento, envie o comprovante para <strong>(35) 99911‑1369</strong> com o nome do inscrito e o valor.
+          </div>
+
+          <div class="row" style="margin-top:14px">
+            <a id="wplink" class="whatsapp-btn" target="_blank" rel="noopener">
+              📱 Enviar comprovante pelo WhatsApp
+            </a>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // === CONFIGURAÇÃO BÁSICA ===
+    const PIX_KEY = "+5535999111369"; // chave PIX (telefone com +)
+    const MERCHANT_NAME = "CONGRESSO DE MISSOES";
+    const MERCHANT_CITY = "CONCEICAO AP";
+    const DESCRIPTION = "Congresso de Missões";
+    const FIXED_AMOUNT = "30.00";
+    const FIXED_PAYLOAD = "00020126360014BR.GOV.BCB.PIX0114+5535999111369520400005303986540530.005802BR5923CARLOS ALBERTO FERREIRA6013Conceicao Apa62210517CongressodeMisses6304C066";
+
+    // Utils
+    const toAscii = (str)=> (str||"")
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu,'')
+      .replace(/[^\x20-\x7E]/g, '');
+
+    function parseParams(){
+      const p = new URLSearchParams(location.search);
+      const nome = (p.get('nome')||'').trim();
+      return { nome };
+    }
+
+    function slug(s){
+      return toAscii(s).toUpperCase().replace(/[^A-Z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0,20)||'SEMTXID';
+    }
+
+    function nRandom(n){
+      const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let out='';
+      for(let i=0;i<n;i++){ out+=chars[Math.floor(Math.random()*chars.length)]; }
+      return out;
+    }
+
+    async function generatePix(){
+      const {nome} = parseParams();
+    
+
+      document.getElementById('pixKeyShow').textContent = PIX_KEY;
+      document.getElementById('descShow').textContent = DESCRIPTION;
+
+      // Copia e cola (payload fixo)
+      const ta = document.getElementById('payload');
+      ta.value = FIXED_PAYLOAD;
+
+      // Carrega imagem Base64 de arquivo externo
+      const qrel = document.getElementById('qrcode');
+      qrel.innerHTML = '';
+      const img = document.createElement('img');
+      img.alt = 'QR Code PIX';
+      img.style.maxWidth = '320px';
+      img.style.height = 'auto';
+      qrel.appendChild(img);
+
+      try{
+        const resp = await fetch('qr_base64.txt', { cache: 'no-store' });
+        const base64 = (await resp.text()).trim();
+        if(base64){
+          // se o arquivo já vier com prefixo data:, usa direto
+          img.src = base64.startsWith('data:') ? base64 : `data:image/png;base64,${base64}`;
+        }else{
+          img.alt = 'QR Code indisponível — cole o Base64 em qr_base64.txt';
+        }
+      }catch(err){
+        console.error('Erro ao carregar qr_base64.txt', err);
+        img.alt = 'Erro ao carregar QR Code';
+      }
+
+      // WhatsApp link
+      const wp = document.getElementById('wplink');
+      const msg = `Olá! Segue o comprovante do PIX do Congresso de Missões.\nNome: ${nome||''}\nValor: R$ 30,00\nTXID: ${txid}`;
+      const url = `https://wa.me/5535999111369?text=${encodeURIComponent(msg)}`;
+      wp.href = url;
+    }
+
+    // Eventos
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const {nome} = parseParams();
+      const hello = document.getElementById('hello');
+      hello.innerHTML = nome ? `Olá, <strong>${nome}</strong>!` : 'Olá!';
+
+      generatePix();
+
+      document.getElementById('btnCopy').addEventListener('click', ()=>{
+        const ta = document.getElementById('payload');
+        ta.select();
+        ta.setSelectionRange(0, 99999);
+        document.execCommand('copy');
+        const btn = document.getElementById('btnCopy');
+        const txt = btn.textContent;
+        btn.textContent = 'Copiado!';
+        setTimeout(() => btn.textContent = txt, 1200);
+      });
+
+      const btnCopyKey = document.getElementById('btnCopyKey');
+      if(btnCopyKey){
+        btnCopyKey.addEventListener('click', ()=>{
+          const tmp = document.createElement('input');
+          tmp.value = PIX_KEY;
+          document.body.appendChild(tmp);
+          tmp.select();
+          tmp.setSelectionRange(0, 99999);
+          document.execCommand('copy');
+          document.body.removeChild(tmp);
+          const txt = btnCopyKey.textContent;
+          btnCopyKey.textContent = 'Chave copiada!';
+          setTimeout(()=> btnCopyKey.textContent = txt, 1200);
+        });
+      }
+
+      const btnOpenQR = document.getElementById('btnOpenQR');
+      if(btnOpenQR){
+        btnOpenQR.addEventListener('click', ()=>{
+          const img = document.querySelector('#qrcode img');
+          if(img && img.src) window.open(img.src, '_blank');
+        });
+      }
+    });
+  </script>
+</body>
+</html>
