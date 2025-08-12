@@ -42,6 +42,7 @@
     <div class="card pad">
       <div class="titleline">
         <h1>Pagamento PIX — Congresso de Missões</h1>
+        <span class="badge" id="txidBadge">TXID: —</span>
       </div>
       <p id="hello" class="muted" style="margin-bottom:18px">Olá!</p>
 
@@ -50,16 +51,6 @@
         <section class="qrbox pad" aria-label="QR Code do PIX">
           <div id="qrcode"></div>
         </section>
-        <div class="row" style="gap:12px;margin:10px 0">
-          <div style="flex:1">
-            <label class="small muted">Descrição</label>
-            <div class="mono" id="descShow">Congresso de Missões</div>
-          </div>
-          <div style="width:180px">
-            <label class="small muted">Valor</label>
-            <div class="mono" style="background:#fff;padding:10px 12px;border-radius:10px;border:1px solid #e5e7eb">R$ 30,00</div>
-          </div>
-        </div>
 
         <!-- DADOS -->
         <section class="pad" style="background:#fafafa;border:1px solid #e5e7eb;border-radius:12px">
@@ -68,7 +59,7 @@
           <div style="margin:8px 0 14px">
             <strong>Como pagar</strong>
             <ol class="small" style="margin:8px 0 0 18px;color:#374151">
-              <li>Escaneie o QR Code acima.</li>
+              <li>Escaneie o QR Code acima (ou <button id="btnOpenQR" class="btn-blue" style="padding:6px 10px;font-size:12px">abrir QR em tela cheia</button>).</li>
               <li>Ou use o PIX copia e cola clicando em <em>Copiar código PIX</em> abaixo.</li>
               <li>Ou pague pela <em>chave PIX</em> exibida, clicando em <em>Copiar chave</em>.</li>
             </ol>
@@ -79,10 +70,19 @@
             <button id="btnCopyKey" class="btn-blue" style="margin-left:auto">Copiar chave</button>
           </div>
 
-        
+          <div class="row" style="gap:12px;margin:10px 0">
+            <div style="flex:1">
+              <label class="small muted">Descrição</label>
+              <div class="mono" id="descShow">Congresso de Missões</div>
+            </div>
+            <div style="width:180px">
+              <label class="small muted">Valor</label>
+              <div class="mono" style="background:#fff;padding:10px 12px;border-radius:10px;border:1px solid #e5e7eb">R$ 30,00</div>
+            </div>
+          </div>
 
           <div class="row" style="margin:10px 0">
-            <button class="btn-blue" id="btnCopy" title="Copiar código PIX copia e cola">Copiar código PIX Copia e Cola</button>
+            <button class="btn-blue" id="btnCopy" title="Copiar código PIX copia e cola">Copiar código PIX</button>
           </div>
 
           <label class="small muted">PIX copia e cola</label>
@@ -94,7 +94,7 @@
           </div>
 
           <div class="row" style="margin-top:14px">
-            <a id="wplink" class="whatsapp-btn" target="_blank" rel="noopener">
+            <a id="wplink" class="whatsapp-btn" target="_blank" rel="noopener" href="https://wa.me/5535999111369">
               📱 Enviar comprovante pelo WhatsApp
             </a>
           </div>
@@ -137,10 +137,19 @@
 
     async function generatePix(){
       const {nome} = parseParams();
-    
+      const txid = ("MISSOES-" + nRandom(6)).slice(0,25);
 
+      document.getElementById('txidBadge').textContent = 'TXID: ' + txid;
       document.getElementById('pixKeyShow').textContent = PIX_KEY;
       document.getElementById('descShow').textContent = DESCRIPTION;
+
+      // WhatsApp link – define imediatamente para evitar atraso
+      const wp = document.getElementById('wplink');
+      if(wp){
+        const msg = `Olá! Segue o comprovante do PIX do Congresso de Missões.\n\nNome: ${nome || 'Inscrito'}\nValor: R$ 30,00\n\nObrigado!`;
+        const url = `https://wa.me/5535999111369?text=${encodeURIComponent(msg)}`;
+        wp.href = url;
+      }
 
       // Copia e cola (payload fixo)
       const ta = document.getElementById('payload');
@@ -168,12 +177,6 @@
         console.error('Erro ao carregar qr_base64.txt', err);
         img.alt = 'Erro ao carregar QR Code';
       }
-
-      // WhatsApp link
-      const wp = document.getElementById('wplink');
-      const msg = `Olá! Segue o comprovante do PIX do Congresso de Missões.\nNome: ${nome||''}\nValor: R$ 30,00\nTXID: ${txid}`;
-      const url = `https://wa.me/5535999111369?text=${encodeURIComponent(msg)}`;
-      wp.href = url;
     }
 
     // Eventos
@@ -184,30 +187,52 @@
 
       generatePix();
 
-      document.getElementById('btnCopy').addEventListener('click', ()=>{
-        const ta = document.getElementById('payload');
-        ta.select();
-        ta.setSelectionRange(0, 99999);
-        document.execCommand('copy');
-        const btn = document.getElementById('btnCopy');
-        const txt = btn.textContent;
-        btn.textContent = 'Copiado!';
-        setTimeout(() => btn.textContent = txt, 1200);
-      });
+      async function copyToClipboard(text){
+        try{
+          if(navigator.clipboard && window.isSecureContext){
+            await navigator.clipboard.writeText(text);
+            return true;
+          }
+        }catch(e){ /* continua no fallback */ }
+        // Fallback
+        const area = document.createElement('textarea');
+        area.value = text;
+        area.setAttribute('readonly', '');
+        area.style.position = 'absolute';
+        area.style.left = '-9999px';
+        document.body.appendChild(area);
+        area.select();
+        area.setSelectionRange(0, text.length);
+        const ok = document.execCommand('copy');
+        document.body.removeChild(area);
+        return ok;
+      }
+
+      function pulseButton(btn, successLabel='Copiado!'){
+        const original = btn.textContent;
+        btn.disabled = true;
+        btn.style.opacity = '0.85';
+        btn.textContent = successLabel;
+        setTimeout(()=>{
+          btn.disabled = false;
+          btn.style.opacity = '1';
+          btn.textContent = original;
+        }, 1200);
+      }
+
+      const btnCopy = document.getElementById('btnCopy');
+      if(btnCopy){
+        btnCopy.addEventListener('click', async ()=>{
+          const ok = await copyToClipboard(FIXED_PAYLOAD);
+          pulseButton(btnCopy, ok ? 'Copiado!' : 'Erro ao copiar');
+        });
+      }
 
       const btnCopyKey = document.getElementById('btnCopyKey');
       if(btnCopyKey){
-        btnCopyKey.addEventListener('click', ()=>{
-          const tmp = document.createElement('input');
-          tmp.value = PIX_KEY;
-          document.body.appendChild(tmp);
-          tmp.select();
-          tmp.setSelectionRange(0, 99999);
-          document.execCommand('copy');
-          document.body.removeChild(tmp);
-          const txt = btnCopyKey.textContent;
-          btnCopyKey.textContent = 'Chave copiada!';
-          setTimeout(()=> btnCopyKey.textContent = txt, 1200);
+        btnCopyKey.addEventListener('click', async ()=>{
+          const ok = await copyToClipboard(PIX_KEY);
+          pulseButton(btnCopyKey, ok ? 'Chave copiada!' : 'Erro ao copiar');
         });
       }
 
