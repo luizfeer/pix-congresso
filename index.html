@@ -59,7 +59,7 @@
           <div style="margin:8px 0 14px">
             <strong>Como pagar</strong>
             <ol class="small" style="margin:8px 0 0 18px;color:#374151">
-              <li>Escaneie o QR Code acima (ou <button id="btnOpenQR" class="btn-blue" style="padding:6px 10px;font-size:12px">abrir QR em tela cheia</button>).</li>
+              <li>Escaneie o QR Code acima.</li>
               <li>Ou use o PIX copia e cola clicando em <em>Copiar código PIX</em> abaixo.</li>
               <li>Ou pague pela <em>chave PIX</em> exibida, clicando em <em>Copiar chave</em>.</li>
             </ol>
@@ -77,7 +77,7 @@
             </div>
             <div style="width:180px">
               <label class="small muted">Valor</label>
-              <div class="mono" style="background:#fff;padding:10px 12px;border-radius:10px;border:1px solid #e5e7eb">R$ 30,00</div>
+              <div class="mono" style="background:#fff;padding:10px 12px;border-radius:10px;border:1px solid #e5e7eb">R$ 55,00</div>
             </div>
           </div>
 
@@ -109,8 +109,8 @@
     const MERCHANT_NAME = "CONGRESSO DE MISSOES";
     const MERCHANT_CITY = "CONCEICAO AP";
     const DESCRIPTION = "Congresso de Missões";
-    const FIXED_AMOUNT = "30.00";
-    const FIXED_PAYLOAD = "00020126360014BR.GOV.BCB.PIX0114+5535999111369520400005303986540530.005802BR5923CARLOS ALBERTO FERREIRA6013Conceicao Apa62210517CongressodeMisses6304C066";
+    const FIXED_AMOUNT = "55.00";
+    const FIXED_PAYLOAD = "00020126360014BR.GOV.BCB.PIX0114+5535999111369520400005303986540555.005802BR5914Carlos Alberto6014Concecao da Ap610837148-00062220518congressodemissoes6304C499";
 
     // Utils
     const toAscii = (str)=> (str||"")
@@ -146,7 +146,7 @@
       // WhatsApp link – define imediatamente para evitar atraso
       const wp = document.getElementById('wplink');
       if(wp){
-        const msg = `Olá! Segue o comprovante do PIX do Congresso de Missões.\n\nNome: ${nome || 'Inscrito'}\nValor: R$ 30,00\n\nObrigado!`;
+        const msg = `Olá! Segue o comprovante do PIX do Congresso de Missões.\n\nNome: ${nome || 'Inscrito'}\nValor: R$ 55,00\n\nObrigado!`;
         const url = `https://wa.me/5535999111369?text=${encodeURIComponent(msg)}`;
         wp.href = url;
       }
